@@ -1,26 +1,15 @@
 import { dbService } from "fbase";
-import React, { useEffect, useState } from "react";
-import { collection, addDoc, getDocs, query, onSnapshot, orderBy} from "firebase/firestore";
+import React, { useEffect, useRef, useState } from "react";
+import { collection, query, onSnapshot, orderBy} from "firebase/firestore";
 import Nweet from "components/Nweet";
 
+import NweetFactory from "components/NweetFactory";
+
 const Home = ({ userObj }) => {
-    const [nweet, setNweet] = useState("");
+
     const [nweets, setNweets] = useState([]);
-    
-    /*
-    const getNweets = async () => {
-        const dbNweets = await getDocs(collection(dbService,"nweets"));
-        dbNweets.forEach((document) => {
-            const nweetObject = {
-                ...document.data(),
-                id: document.id,
-            }
-            setNweets((prev) => [nweetObject, ...prev]);
-        });
-    }
-    */
+
     useEffect(() => {
-        //getNweets();
         const q = query(
             collection(dbService, "nweets"),
             orderBy("createdAt", "desc")
@@ -35,34 +24,10 @@ const Home = ({ userObj }) => {
         })
     }, []);
 
-    const onSubmit = async (event) => {
-        event.preventDefault();
-        await addDoc(collection(dbService,"nweets"),{
-            text: nweet,
-            createdAt: Date.now(),
-            createrId: userObj.uid,
-        });
-        setNweet("");
-    };
-    const onChange = (event) => {
-        const {
-            target: { value },
-        } = event;
-        setNweet(value);
-    }
     return (
-        <div>
-            <form onSubmit={onSubmit}>
-                <input
-                    type="text"
-                    placeholder="무슨 일이 일어나고 있나요?"
-                    maxLength={120}
-                    onChange={onChange} 
-                    value={nweet}
-                />
-                <input type="submit" value="Nwitter" />
-            </form>
-            <div>
+        <div className="container">
+            <NweetFactory userObj={userObj}/>
+            <div style={{ marginTop: 30 }}>
             {nweets.map((nweetObj) => (
                 <Nweet
                     key={nweetObj.id}
